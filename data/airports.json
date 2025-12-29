@@ -1,0 +1,17 @@
+[
+    {"code": "MAD", "name": "Adolfo Suárez Madrid-Barajas", "city": "Madrid", "country": "Spain"},
+    {"code": "BCN", "name": "Josep Tarradellas Barcelona-El Prat", "city": "Barcelona", "country": "Spain"},
+    {"code": "LPA", "name": "Gran Canaria", "city": "Las Palmas", "country": "Spain"},
+    {"code": "TFN", "name": "Tenerife Norte", "city": "Tenerife", "country": "Spain"},
+    {"code": "LHR", "name": "Heathrow", "city": "London", "country": "UK"},
+    {"code": "CDG", "name": "Charles de Gaulle", "city": "Paris", "country": "France"},
+    {"code": "FCO", "name": "Leonardo da Vinci", "city": "Rome", "country": "Italy"},
+    {"code": "JFK", "name": "John F. Kennedy", "city": "New York", "country": "USA"},
+    {"code": "MIA", "name": "Miami International", "city": "Miami", "country": "USA"},
+    {"code": "LAX", "name": "Los Angeles International", "city": "Los Angeles", "country": "USA"},
+    {"code": "FRA", "name": "Frankfurt", "city": "Frankfurt", "country": "Germany"},
+    {"code": "AMS", "name": "Schiphol", "city": "Amsterdam", "country": "Netherlands"},
+    {"code": "IST", "name": "Istanbul", "city": "Istanbul", "country": "Turkey"},
+    {"code": "DXB", "name": "Dubai International", "city": "Dubai", "country": "UAE"},
+    {"code": "SIN", "name": "Changi", "city": "Singapore", "country": "Singapore"}
+]

@@ -1,0 +1,78 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Flight Network Graph API
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.11
+    MemorySize: 256
+
+Resources:
+  FlightGraphFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: flight-graph-operations
+      CodeUri: ../../src/
+      Handler: lambdas.graph_operations.lambda_handler
+      Events:
+        Airports:
+          Type: Api
+          Properties:
+            Path: /airports
+            Method: get
+        Stats:
+          Type: Api
+          Properties:
+            Path: /stats
+            Method: get
+        ShortestPath:
+          Type: Api
+          Properties:
+            Path: /shortest-path
+            Method: get
+        AllPaths:
+          Type: Api
+          Properties:
+            Path: /all-paths
+            Method: get
+        Hubs:
+          Type: Api
+          Properties:
+            Path: /hubs
+            Method: get
+        Isolated:
+          Type: Api
+          Properties:
+            Path: /isolated
+            Method: get
+        Connections:
+          Type: Api
+          Properties:
+            Path: /connections
+            Method: get
+        ByDegree:
+          Type: Api
+          Properties:
+            Path: /by-degree
+            Method: get
+        Clusters:
+          Type: Api
+          Properties:
+            Path: /clusters
+            Method: get
+        LongestPath:
+          Type: Api
+          Properties:
+            Path: /longest-path
+            Method: get
+
+  FlightDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub flight-data-${AWS::AccountId}
+
+Outputs:
+  ApiUrl:
+    Description: URL de la API
+    Value: !Sub https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
