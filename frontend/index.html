@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✈️ Flight Network Graph API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #8892b0;
+            font-size: 1.1rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-item .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #64ffda;
+        }
+
+        .stat-item .label {
+            font-size: 0.9rem;
+            color: #8892b0;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .card h2 {
+            color: #64ffda;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #8892b0;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .form-group select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .btn {
+            background: #64ffda;
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #4cd9b5;
+            transform: translateY(-2px);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 100px;
+        }
+
+        .result-box h3 {
+            color: #64ffda;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .path-display {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .airport-badge {
+            background: #64ffda;
+            color: #1a1a2e;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .arrow {
+            color: #64ffda;
+            font-size: 1.5rem;
+        }
+
+        .info-text {
+            color: #8892b0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .hub-list {
+            list-style: none;
+        }
+
+        .hub-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .hub-list li:last-child {
+            border-bottom: none;
+        }
+
+        .hub-code {
+            font-weight: bold;
+            color: #64ffda;
+        }
+
+        .hub-connections {
+            background: rgba(100, 255, 218, 0.2);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .cluster-box {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .cluster-title {
+            font-weight: bold;
+            color: #64ffda;
+            margin-bottom: 5px;
+        }
+
+        .cluster-airports {
+            color: #8892b0;
+        }
+
+        .loading {
+            text-align: center;
+            color: #8892b0;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .airports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .airport-card {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .airport-card .code {
+            font-weight: bold;
+            color: #64ffda;
+        }
+
+        .airport-card .city {
+            color: #8892b0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✈️ Flight Network Graph API</h1>
+            <p>Sistema de análisis de redes de vuelos usando grafos</p>
+        </header>
+
+        <div class="stats-bar" id="stats-bar">
+            <div class="stat-item">
+                <div class="number" id="total-airports">-</div>
+                <div class="label">Aeropuertos</div>
+            </div>
+            <div class="stat-item">
+                <div class="number" id="total-flights">-</div>
+                <div class="label">Vuelos</div>
+            </div>
+            <div class="stat-item">
+                <div class="number" id="density">-</div>
+                <div class="label">Densidad</div>
+            </div>
+            <div class="stat-item">
+                <div class="number" id="total-clusters">-</div>
+                <div class="label">Clusters</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Ruta más corta -->
+            <div class="card">
+                <h2>🛫 Buscar Ruta Más Corta</h2>
+                <div class="form-group">
+                    <label>Aeropuerto de origen</label>
+                    <select id="origin">
+                        <option value="">Cargando...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Aeropuerto de destino</label>
+                    <select id="destination">
+                        <option value="">Cargando...</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="findShortestPath()">Buscar Ruta</button>
+                <div class="result-box" id="path-result">
+                    <p class="info-text">Selecciona origen y destino para buscar la ruta más corta.</p>
+                </div>
+            </div>
+
+            <!-- Hubs -->
+            <div class="card">
+                <h2>🌟 Aeropuertos Hub (Más Conectados)</h2>
+                <div class="form-group">
+                    <label>Número de hubs a mostrar</label>
+                    <input type="number" id="top-hubs" value="5" min="1" max="15">
+                </div>
+                <button class="btn" onclick="getHubs()">Ver Hubs</button>
+                <div class="result-box" id="hubs-result">
+                    <p class="info-text">Muestra los aeropuertos con más conexiones directas.</p>
+                </div>
+            </div>
+
+            <!-- Conexiones -->
+            <div class="card">
+                <h2>🔗 Conexiones Directas</h2>
+                <div class="form-group">
+                    <label>Selecciona un aeropuerto</label>
+                    <select id="airport-connections">
+                        <option value="">Cargando...</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="getConnections()">Ver Conexiones</button>
+                <div class="result-box" id="connections-result">
+                    <p class="info-text">Muestra todos los vuelos directos desde un aeropuerto.</p>
+                </div>
+            </div>
+
+            <!-- Clusters -->
+            <div class="card">
+                <h2>🗺️ Clusters (Regiones)</h2>
+                <button class="btn" onclick="getClusters()">Detectar Clusters</button>
+                <div class="result-box" id="clusters-result">
+                    <p class="info-text">Detecta grupos de aeropuertos densamente conectados.</p>
+                </div>
+            </div>
+
+            <!-- Lista de aeropuertos -->
+            <div class="card full-width">
+                <h2>📍 Todos los Aeropuertos</h2>
+                <div class="airports-grid" id="airports-list">
+                    <p class="info-text">Cargando aeropuertos...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const API_BASE = 'http://localhost:5000';
+        
+        let airports = [];
+
+        // Cargar datos iniciales
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadAirports();
+            getClusters();
+        });
+
+        // Cargar estadísticas
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const data = await response.json();
+                
+                document.getElementById('total-airports').textContent = data.total_airports;
+                document.getElementById('total-flights').textContent = data.total_flights;
+                document.getElementById('density').textContent = data.density.toFixed(2);
+            } catch (error) {
+                console.error('Error cargando stats:', error);
+            }
+        }
+
+        // Cargar aeropuertos
+        async function loadAirports() {
+            try {
+                const response = await fetch(`${API_BASE}/airports`);
+                const data = await response.json();
+                airports = data.airports;
+                
+                // Llenar los selectores
+                const selectors = ['origin', 'destination', 'airport-connections'];
+                selectors.forEach(id => {
+                    const select = document.getElementById(id);
+                    select.innerHTML = '<option value="">Seleccionar...</option>';
+                    airports.forEach(airport => {
+                        select.innerHTML += `<option value="${airport.code}">${airport.code} - ${airport.city}</option>`;
+                    });
+                });
+
+                // Mostrar lista de aeropuertos
+                const listContainer = document.getElementById('airports-list');
+                listContainer.innerHTML = airports.map(a => `
+                    <div class="airport-card">
+                        <div class="code">${a.code}</div>
+                        <div class="city">${a.city}, ${a.country}</div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error cargando aeropuertos:', error);
+            }
+        }
+
+        // Buscar ruta más corta
+        async function findShortestPath() {
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+            const resultBox = document.getElementById('path-result');
+            
+            if (!origin || !destination) {
+                resultBox.innerHTML = '<p class="info-text">⚠️ Selecciona origen y destino</p>';
+                return;
+            }
+            
+            if (origin === destination) {
+                resultBox.innerHTML = '<p class="info-text">⚠️ Origen y destino deben ser diferentes</p>';
+                return;
+            }
+
+            resultBox.innerHTML = '<p class="loading">Buscando ruta...</p>';
+
+            try {
+                const response = await fetch(`${API_BASE}/shortest-path?origin=${origin}&destination=${destination}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    resultBox.innerHTML = `<p class="info-text">❌ ${data.error}</p>`;
+                    return;
+                }
+
+                const pathHtml = data.path.map(code => `<span class="airport-badge">${code}</span>`).join('<span class="arrow">→</span>');
+                
+                resultBox.innerHTML = `
+                    <h3>Ruta encontrada:</h3>
+                    <div class="path-display">${pathHtml}</div>
+                    <p class="info-text">
+                        📏 Distancia: <strong>${data.distance.toLocaleString()} km</strong><br>
+                        🔄 Escalas: <strong>${data.stops}</strong>
+                    </p>
+                `;
+            } catch (error) {
+                resultBox.innerHTML = '<p class="info-text">❌ Error al conectar con la API</p>';
+            }
+        }
+
+        // Obtener hubs
+        async function getHubs() {
+            const top = document.getElementById('top-hubs').value;
+            const resultBox = document.getElementById('hubs-result');
+            
+            resultBox.innerHTML = '<p class="loading">Cargando hubs...</p>';
+
+            try {
+                const response = await fetch(`${API_BASE}/hubs?top=${top}`);
+                const data = await response.json();
+
+                const hubsHtml = data.hubs.map((hub, index) => `
+                    <li>
+                        <span><strong>${index + 1}.</strong> <span class="hub-code">${hub.airport}</span></span>
+                        <span class="hub-connections">${hub.connections} conexiones</span>
+                    </li>
+                `).join('');
+                
+                resultBox.innerHTML = `<ul class="hub-list">${hubsHtml}</ul>`;
+            } catch (error) {
+                resultBox.innerHTML = '<p class="info-text">❌ Error al conectar con la API</p>';
+            }
+        }
+
+        // Obtener conexiones
+        async function getConnections() {
+            const airport = document.getElementById('airport-connections').value;
+            const resultBox = document.getElementById('connections-result');
+            
+            if (!airport) {
+                resultBox.innerHTML = '<p class="info-text">⚠️ Selecciona un aeropuerto</p>';
+                return;
+            }
+
+            resultBox.innerHTML = '<p class="loading">Cargando conexiones...</p>';
+
+            try {
+                const response = await fetch(`${API_BASE}/connections?airport=${airport}`);
+                const data = await response.json();
+
+                if (data.connections.length === 0) {
+                    resultBox.innerHTML = '<p class="info-text">Este aeropuerto no tiene conexiones directas.</p>';
+                    return;
+                }
+
+                const connectionsHtml = data.connections.map(code => `<span class="airport-badge">${code}</span>`).join(' ');
+                
+                resultBox.innerHTML = `
+                    <h3>Vuelos directos desde ${data.airport}:</h3>
+                    <div class="path-display" style="margin-top: 10px;">${connectionsHtml}</div>
+                    <p class="info-text">Total: <strong>${data.total}</strong> conexiones</p>
+                `;
+            } catch (error) {
+                resultBox.innerHTML = '<p class="info-text">❌ Error al conectar con la API</p>';
+            }
+        }
+
+        // Obtener clusters
+        async function getClusters() {
+            const resultBox = document.getElementById('clusters-result');
+            
+            resultBox.innerHTML = '<p class="loading">Detectando clusters...</p>';
+
+            try {
+                const response = await fetch(`${API_BASE}/clusters`);
+                const data = await response.json();
+
+                document.getElementById('total-clusters').textContent = data.total_clusters;
+
+                const regionNames = ['🇪🇺 Europa/África', '🇺🇸 América', '🌏 Oriente/Asia'];
+                
+                const clustersHtml = data.clusters.map((cluster, index) => `
+                    <div class="cluster-box">
+                        <div class="cluster-title">${regionNames[index] || `Cluster ${index + 1}`}</div>
+                        <div class="cluster-airports">${cluster.join(', ')}</div>
+                    </div>
+                `).join('');
+                
+                resultBox.innerHTML = clustersHtml;
+            } catch (error) {
+                resultBox.innerHTML = '<p class="info-text">❌ Error al conectar con la API</p>';
+            }
+        }
+    </script>
+</body>
+</html>
