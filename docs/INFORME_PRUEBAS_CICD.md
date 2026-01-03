@@ -156,7 +156,7 @@ tests/test_graph.py::test_graph_stats PASSED                             [100%]
 
 ### 6.1 GitHub Actions - Pipeline Exitoso
 
-![CI/CD Pipeline Success](https://github.com/raulmendoza21/flight-network-graph-api/actions)
+![CI/CD Pipeline Success](capturaCICD.png)
 
 El pipeline muestra:
 - ✅ Set up job
