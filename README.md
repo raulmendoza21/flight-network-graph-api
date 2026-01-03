@@ -1,105 +1,109 @@
 # ✈️ Flight Network Graph API
 
-API REST para gestionar y analizar una red de vuelos usando grafos.
+API REST y frontend para analizar una red de vuelos usando grafos (NetworkX), con despliegue serverless (SAM), entorno local con Flask y LocalStack, pruebas automáticas y CI/CD en GitHub Actions.
 
-## 📋 Descripción
+## 🔗 Repositorio
+https://github.com/raulmendoza21/flight-network-graph-api
 
-Sistema que modela aeropuertos como nodos y vuelos como aristas, permitiendo operaciones de análisis de grafos como búsqueda de rutas, detección de hubs y clusters.
+## 🧭 Características
+- Modelo de grafo: aeropuertos como nodos, vuelos como aristas con peso distancia.
+- Endpoints para rutas, hubs, clusters, conexiones y estadísticas.
+- Frontend web simple servido por Flask para probar la API.
+- Infraestructura como código con AWS SAM + LocalStack para desarrollo local.
+- CI/CD con GitHub Actions (18 tests pasando).
 
-## 🏗️ Arquitectura
+## 🗺️ Arquitectura
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Cliente   │────▶│ API Gateway │────▶│   Lambda    │
-└─────────────┘     └─────────────┘     └──────┬──────┘
-                                               │
-                    ┌──────────────────────────┼──────────────┐
-                    ▼                          ▼              ▼
-             ┌─────────────┐           ┌─────────────┐  ┌──────────┐
-             │  DynamoDB   │           │     S3      │  │ NetworkX │
-             └─────────────┘           └─────────────┘  └──────────┘
+Cliente (Frontend)
+   │
+   ▼
+API Gateway (LocalStack/AWS) ──► Lambda (graph_operations.py)
+                                   │
+                                   ├─ Lee datos JSON (S3 o local)
+                                   └─ FlightGraph (NetworkX)
 ```
 
-## 🚀 Endpoints
+## 🚀 Endpoints principales
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
-| GET | `/airports` | Lista todos los aeropuertos |
-| GET | `/stats` | Estadísticas del grafo |
-| GET | `/shortest-path?origin=X&destination=Y` | Ruta más corta |
-| GET | `/all-paths?origin=X&destination=Y` | Todos los caminos |
-| GET | `/hubs?top=N` | Aeropuertos más conectados |
-| GET | `/isolated` | Aeropuertos sin conexiones |
-| GET | `/connections?airport=X` | Conexiones de un aeropuerto |
-| GET | `/by-degree?degree=N` | Filtrar por nº conexiones |
-| GET | `/clusters` | Detectar comunidades |
-| GET | `/longest-path?origin=X&destination=Y` | Camino más largo |
+| GET | /airports | Lista todos los aeropuertos |
+| GET | /stats | Estadísticas del grafo |
+| GET | /shortest-path?origin=X&destination=Y | Ruta más corta |
+| GET | /all-paths?origin=X&destination=Y | Todos los caminos |
+| GET | /hubs?top=N | Aeropuertos más conectados |
+| GET | /isolated | Aeropuertos sin conexiones |
+| GET | /connections?airport=X | Conexiones directas de un aeropuerto |
+| GET | /by-degree?degree=N | Aeropuertos con N conexiones |
+| GET | /clusters | Detección de comunidades |
+| GET | /longest-path?origin=X&destination=Y | Camino simple más largo |
 
-## 🛠️ Instalación Local
+## 🛠️ Puesta en marcha (local)
 
 ```bash
-# Clonar repositorio
-git clone <repo-url>
-cd TF
+# 1) Clonar
+git clone https://github.com/raulmendoza21/flight-network-graph-api.git
+cd flight-network-graph-api
 
-# Crear entorno virtual
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
+# 2) Entorno virtual
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+# Linux/Mac
+source .venv/bin/activate
 
-# Instalar dependencias
+# 3) Dependencias
 pip install -r requirements.txt
 
-# Ejecutar tests
-pytest tests/ -v
+# 4) Servidor local Flask (API + frontend)
+python app.py
+# Abre http://localhost:5000
 ```
 
-## 🐳 LocalStack
-
+### Opción: LocalStack (Docker)
 ```bash
-# Levantar LocalStack
 docker-compose up -d
-
-# Verificar servicios
-curl http://localhost:4566/_localstack/health
+# Verifica: docker ps
 ```
 
-## 📊 Ejemplo de Uso
-
-```bash
-# Obtener ruta más corta Madrid → New York
-curl "http://localhost:4566/restapis/.../shortest-path?origin=MAD&destination=JFK"
-
-# Respuesta
-{
-  "origin": "MAD",
-  "destination": "JFK", 
-  "path": ["MAD", "JFK"],
-  "distance": 5768,
-  "stops": 0
-}
-```
-
-## 🧪 Tests
+## 🧪 Tests y CI/CD
 
 ```bash
 pytest tests/ -v
 ```
+
+- 18 tests pasan (modelo y API). Pipeline GitHub Actions: lint + tests.
+- Informe: [docs/INFORME_PRUEBAS_CICD.md](docs/INFORME_PRUEBAS_CICD.md)
+
+## 🗂️ Datos
+- [data/airports.json](data/airports.json)
+- [data/flights.json](data/flights.json)
+
+## 📄 Documentación
+- Memoria LaTeX: [docs/memoria.tex](docs/memoria.tex)
+- Arquitectura: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Demo con salidas reales: [docs/DEMO.md](docs/DEMO.md)
+- Guía de proyecto: [docs/GUIA_PROYECTO.md](docs/GUIA_PROYECTO.md)
 
 ## 📁 Estructura
 
 ```
-TF/
+flight-network-graph-api/
+├── app.py                  # Servidor Flask local
+├── frontend/               # Interfaz web
 ├── src/
-│   ├── lambdas/         # Funciones Lambda
-│   ├── models/          # Modelo del grafo
-│   └── utils/           # Helpers
-├── data/                # Datos JSON
-├── tests/               # Tests
-├── infrastructure/      # AWS/LocalStack config
-└── .github/workflows/   # CI/CD
+│   ├── lambdas/graph_operations.py
+│   ├── models/graph.py
+│   └── utils/helpers.py
+├── data/                   # Datos de aeropuertos y vuelos
+├── tests/                  # Tests API y modelo
+├── infrastructure/
+│   ├── aws/template.yaml   # SAM template
+│   └── localstack/setup.sh
+├── docs/                   # Memoria, demo, informes, capturas
+└── .github/workflows/ci-cd.yml
 ```
 
 ## 👤 Autor
-
-Tecnologías de Servicios para Ciencia de Datos - ULPGC
+Raúl Mendoza — Tecnologías de Servicios para Ciencia de Datos (ULPGC)
