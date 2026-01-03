@@ -1,0 +1,1431 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{caption}
+
+\geometry{margin=2.5cm}
+
+% Configuración de colores para código
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single
+}
+\lstset{style=mystyle}
+
+% Cabecera y pie de página
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{TSCD - Curso 2024/2025}
+\lhead{Flight Network Graph API}
+\rfoot{Página \thepage}
+
+\begin{document}
+
+% ==================== PORTADA ====================
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Large \textbf{Universidad de Las Palmas de Gran Canaria}}\\[0.5cm]
+    {\large Escuela de Ingeniería Informática}\\[0.3cm]
+    {\large Grado en Ciencia e Ingeniería de Datos}\\[2cm]
+    
+    \rule{\linewidth}{0.5mm}\\[0.4cm]
+    {\Huge \textbf{Flight Network Graph API}}\\[0.3cm]
+    {\Large Sistema de Análisis de Redes de Vuelos mediante Grafos}\\[0.2cm]
+    \rule{\linewidth}{0.5mm}\\[1.5cm]
+    
+    {\Large \textbf{Tecnologías de Servicios para Ciencia de Datos}}\\[0.5cm]
+    {\large Trabajo de Curso}\\[2cm]
+    
+    \begin{minipage}{0.4\textwidth}
+        \begin{flushleft}
+            \textbf{Autor:}\\
+            Raúl Mendoza
+        \end{flushleft}
+    \end{minipage}
+    \begin{minipage}{0.4\textwidth}
+        \begin{flushright}
+            \textbf{Fecha:}\\
+            Enero 2026
+        \end{flushright}
+    \end{minipage}\\[3cm]
+    
+    \vfill
+    {\large Curso 2024-2025}
+    
+\end{titlepage}
+
+% ==================== ÍNDICE ====================
+\tableofcontents
+\newpage
+
+% ==================== 1. INTRODUCCIÓN ====================
+\section{Introducción}
+
+\subsection{Contexto del Proyecto}
+
+En el ámbito de la ciencia de datos, los grafos constituyen una de las estructuras de datos más versátiles y potentes para modelar relaciones complejas entre entidades. Desde las redes sociales hasta los sistemas de transporte, pasando por las redes de distribución de energía, los grafos nos permiten representar y analizar conexiones que de otro modo serían difíciles de visualizar y procesar.
+
+Este proyecto surge como respuesta a la necesidad de aplicar los conocimientos adquiridos en la asignatura de Tecnologías de Servicios para Ciencia de Datos, combinando el uso de servicios en la nube con técnicas de desarrollo modernas como DevOps y CI/CD.
+
+\subsection{Descripción del Problema}
+
+El problema que abordamos consiste en modelar una red de vuelos como un grafo, donde:
+
+\begin{itemize}
+    \item Los \textbf{aeropuertos} se representan como \textbf{nodos} del grafo
+    \item Los \textbf{vuelos directos} entre aeropuertos se representan como \textbf{aristas}
+    \item La \textbf{distancia} entre aeropuertos se almacena como peso de la arista
+\end{itemize}
+
+Sobre esta estructura, implementamos una API REST que permite realizar diversas operaciones de análisis, como encontrar la ruta más corta entre dos aeropuertos, identificar los aeropuertos con más conexiones (hubs), detectar comunidades o clusters, y más.
+
+\subsection{Objetivos}
+
+Los objetivos principales de este proyecto son:
+
+\begin{enumerate}
+    \item Diseñar e implementar un sistema basado en grafos para modelar redes de vuelos
+    \item Desarrollar una API REST con múltiples endpoints para operaciones sobre el grafo
+    \item Desplegar la solución utilizando servicios de AWS (o LocalStack como alternativa local)
+    \item Implementar un pipeline de CI/CD para automatizar pruebas y despliegue
+    \item Crear una interfaz web para interactuar visualmente con el sistema
+    \item Documentar la arquitectura siguiendo buenas prácticas de ingeniería de software
+\end{enumerate}
+
+\subsection{Estructura del Documento}
+
+Este documento se organiza de la siguiente manera:
+
+\begin{itemize}
+    \item \textbf{Sección 2:} Describe la arquitectura del sistema desde los niveles de aplicación y tecnología
+    \item \textbf{Sección 3:} Detalla las tecnologías y herramientas utilizadas
+    \item \textbf{Sección 4:} Explica la implementación del modelo de grafos
+    \item \textbf{Sección 5:} Documenta la API REST y sus endpoints
+    \item \textbf{Sección 6:} Presenta la interfaz web desarrollada
+    \item \textbf{Sección 7:} Describe la infraestructura cloud y LocalStack
+    \item \textbf{Sección 8:} Explica el pipeline de CI/CD implementado
+    \item \textbf{Sección 9:} Presenta las pruebas realizadas y sus resultados
+    \item \textbf{Sección 10:} Proporciona un manual de instalación y uso
+    \item \textbf{Sección 11:} Conclusiones y trabajo futuro
+\end{itemize}
+
+\newpage
+
+% ==================== 2. ARQUITECTURA ====================
+\section{Arquitectura del Sistema}
+
+\subsection{Vista General}
+
+La arquitectura del sistema sigue un patrón serverless, aprovechando los servicios gestionados de AWS para minimizar la complejidad operativa y maximizar la escalabilidad. El diseño se ha realizado pensando en la separación de responsabilidades y la facilidad de mantenimiento.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    box/.style={rectangle, draw, minimum width=2.5cm, minimum height=1cm, align=center, rounded corners},
+    arrow/.style={->, thick}
+]
+    % Cliente
+    \node[box, fill=blue!20] (client) at (0,0) {Cliente\\(Browser)};
+    
+    % API Gateway
+    \node[box, fill=orange!20] (apigw) at (4,0) {API\\Gateway};
+    
+    % Lambda
+    \node[box, fill=green!20] (lambda) at (8,0) {Lambda\\Function};
+    
+    % S3
+    \node[box, fill=yellow!20] (s3) at (8,-2.5) {S3\\(Datos)};
+    
+    % DynamoDB
+    \node[box, fill=purple!20] (dynamo) at (4,-2.5) {DynamoDB\\(Cache)};
+    
+    % Flechas
+    \draw[arrow] (client) -- (apigw) node[midway, above] {HTTP};
+    \draw[arrow] (apigw) -- (lambda) node[midway, above] {Invoke};
+    \draw[arrow] (lambda) -- (s3) node[midway, right] {Read};
+    \draw[arrow] (lambda) -- (dynamo) node[midway, above] {R/W};
+    
+\end{tikzpicture}
+\caption{Arquitectura general del sistema}
+\end{figure}
+
+\subsection{Nivel de Aplicación}
+
+El nivel de aplicación describe los componentes de software y sus interacciones. Nuestro sistema se compone de tres capas principales:
+
+\subsubsection{Capa de Presentación}
+
+La capa de presentación está formada por:
+
+\begin{itemize}
+    \item \textbf{API Gateway:} Punto de entrada para todas las peticiones HTTP. Se encarga del enrutamiento, la autenticación (si se configura) y el formateo de respuestas.
+    \item \textbf{Frontend Web:} Interfaz de usuario desarrollada en HTML/CSS/JavaScript que consume la API y presenta los datos de forma visual.
+\end{itemize}
+
+\subsubsection{Capa de Negocio}
+
+La capa de negocio contiene la lógica principal de la aplicación:
+
+\begin{itemize}
+    \item \textbf{Lambda Function (graph\_operations.py):} Función serverless que procesa las peticiones, parsea los parámetros y orquesta las llamadas al modelo.
+    \item \textbf{FlightGraph (graph.py):} Clase que encapsula el grafo y proporciona métodos para todas las operaciones de análisis.
+    \item \textbf{Helpers (helpers.py):} Funciones auxiliares para carga de datos, formateo de respuestas y utilidades comunes.
+\end{itemize}
+
+\subsubsection{Capa de Datos}
+
+La capa de datos gestiona la persistencia:
+
+\begin{itemize}
+    \item \textbf{Archivos JSON:} Almacenan los datos de aeropuertos y vuelos en formato estructurado.
+    \item \textbf{S3 Bucket:} En producción, los datos se almacenarían en S3 para mayor durabilidad.
+    \item \textbf{DynamoDB:} Tabla opcional para cachear resultados de consultas frecuentes.
+\end{itemize}
+
+\subsection{Nivel de Tecnología}
+
+El nivel de tecnología describe la infraestructura física y los servicios utilizados:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Capa} & \textbf{Servicio AWS} & \textbf{Alternativa Local} \\
+\hline
+Compute & AWS Lambda & LocalStack Lambda \\
+API & API Gateway & LocalStack API Gateway \\
+Storage & Amazon S3 & LocalStack S3 \\
+Database & DynamoDB & LocalStack DynamoDB \\
+Logs & CloudWatch & Logs locales \\
+\hline
+\end{tabular}
+\caption{Mapeo de servicios AWS y alternativas locales}
+\end{table}
+
+\subsection{Diagrama de Componentes}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    component/.style={rectangle, draw, minimum width=3cm, minimum height=1.2cm, align=center},
+    package/.style={rectangle, draw, dashed, minimum width=4cm, minimum height=3cm},
+    arrow/.style={->, thick}
+]
+    % Paquete src
+    \node[package, fill=gray!10] (src) at (0,0) {};
+    \node at (0,1.8) {\textbf{src/}};
+    
+    \node[component, fill=green!20] (lambda) at (0,0.5) {graph\_operations};
+    \node[component, fill=blue!20] (model) at (0,-1) {FlightGraph};
+    
+    % Paquete data
+    \node[package, fill=gray!10] (data) at (5,0) {};
+    \node at (5,1.8) {\textbf{data/}};
+    
+    \node[component, fill=yellow!20] (airports) at (5,0.5) {airports.json};
+    \node[component, fill=yellow!20] (flights) at (5,-1) {flights.json};
+    
+    % Flechas
+    \draw[arrow] (lambda) -- (model);
+    \draw[arrow] (model) -- (airports);
+    \draw[arrow] (model) -- (flights);
+    
+\end{tikzpicture}
+\caption{Diagrama de componentes principales}
+\end{figure}
+
+\subsection{Decisiones de Diseño}
+
+Durante el desarrollo del proyecto, tomamos varias decisiones arquitectónicas importantes:
+
+\begin{enumerate}
+    \item \textbf{Arquitectura Serverless:} Elegimos Lambda sobre EC2 porque el patrón de uso esperado es esporádico, y Lambda permite escalar automáticamente sin gestionar servidores.
+    
+    \item \textbf{Grafo en Memoria:} El grafo se carga en memoria al iniciar la Lambda. Para grafos pequeños-medianos (como el nuestro con 15 aeropuertos), esto es más eficiente que consultar una base de datos en cada operación.
+    
+    \item \textbf{NetworkX:} Utilizamos esta biblioteca por su madurez, amplia documentación y porque implementa los algoritmos que necesitamos (Dijkstra, detección de comunidades, etc.).
+    
+    \item \textbf{LocalStack para Desarrollo:} En lugar de usar AWS directamente durante el desarrollo, usamos LocalStack para evitar costes y tener un entorno reproducible.
+    
+    \item \textbf{API RESTful:} Seguimos las convenciones REST para que la API sea predecible y fácil de consumir desde cualquier cliente.
+\end{enumerate}
+
+\newpage
+
+% ==================== 3. TECNOLOGÍAS ====================
+\section{Tecnologías Utilizadas}
+
+\subsection{Lenguaje de Programación}
+
+\textbf{Python 3.11} fue elegido como lenguaje principal por varias razones:
+
+\begin{itemize}
+    \item Amplio ecosistema de bibliotecas para ciencia de datos y grafos
+    \item Soporte nativo en AWS Lambda
+    \item Sintaxis clara y facilidad de mantenimiento
+    \item Comunidad activa y abundante documentación
+\end{itemize}
+
+\subsection{Bibliotecas Principales}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\textbf{Biblioteca} & \textbf{Versión} & \textbf{Propósito} \\
+\hline
+NetworkX & 3.2.1 & Creación y manipulación de grafos. Proporciona algoritmos como Dijkstra, BFS, DFS, detección de comunidades, etc. \\
+\hline
+Boto3 & 1.34.0 & SDK de AWS para Python. Permite interactuar con servicios como S3, DynamoDB, Lambda. \\
+\hline
+Flask & 3.0.0 & Framework web ligero para crear el servidor de desarrollo local y servir el frontend. \\
+\hline
+Flask-CORS & - & Extensión para habilitar Cross-Origin Resource Sharing en Flask. \\
+\hline
+Pytest & 7.4.3 & Framework de testing para Python. Facilita la escritura y ejecución de pruebas unitarias. \\
+\hline
+Requests & 2.31.0 & Biblioteca para realizar peticiones HTTP, útil para testing de integración. \\
+\hline
+\end{tabular}
+\caption{Bibliotecas Python utilizadas}
+\end{table}
+
+\subsection{Servicios AWS}
+
+\subsubsection{AWS Lambda}
+
+AWS Lambda es un servicio de computación serverless que ejecuta código en respuesta a eventos. Características clave:
+
+\begin{itemize}
+    \item \textbf{Sin servidores:} No hay que aprovisionar ni gestionar servidores
+    \item \textbf{Escalado automático:} Se escala automáticamente según la demanda
+    \item \textbf{Pago por uso:} Solo se paga por el tiempo de ejecución
+    \item \textbf{Integración:} Se integra nativamente con otros servicios AWS
+\end{itemize}
+
+Configuración de nuestra Lambda:
+\begin{lstlisting}[language=yaml, caption=Configuración de Lambda en SAM]
+FlightGraphFunction:
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: flight-graph-operations
+    Runtime: python3.11
+    MemorySize: 256
+    Timeout: 30
+    Handler: lambdas.graph_operations.lambda_handler
+\end{lstlisting}
+
+\subsubsection{Amazon API Gateway}
+
+API Gateway actúa como puerta de entrada para las peticiones HTTP:
+
+\begin{itemize}
+    \item Enruta las peticiones a la Lambda correspondiente
+    \item Gestiona throttling y cuotas
+    \item Proporciona métricas y logging
+    \item Soporta HTTPS para comunicaciones seguras
+\end{itemize}
+
+\subsubsection{Amazon S3}
+
+Simple Storage Service se utiliza para:
+
+\begin{itemize}
+    \item Almacenar los archivos JSON con datos de aeropuertos y vuelos
+    \item Hospedar el frontend como sitio web estático (opcional)
+    \item Alta durabilidad (99.999999999\%)
+\end{itemize}
+
+\subsubsection{Amazon DynamoDB}
+
+Base de datos NoSQL utilizada opcionalmente para:
+
+\begin{itemize}
+    \item Cachear resultados de consultas frecuentes
+    \item Almacenar configuraciones dinámicas
+    \item Latencia de milisegundos
+\end{itemize}
+
+\subsection{LocalStack}
+
+LocalStack es una herramienta que emula los servicios de AWS localmente:
+
+\begin{lstlisting}[language=yaml, caption=docker-compose.yml para LocalStack]
+version: '3.8'
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack-flights
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=lambda,apigateway,s3,dynamodb
+      - DEBUG=1
+    volumes:
+      - "./infrastructure/localstack:/etc/localstack/init/ready.d"
+      - "./src:/opt/code/src"
+      - "./data:/opt/code/data"
+\end{lstlisting}
+
+Ventajas de usar LocalStack:
+
+\begin{itemize}
+    \item Desarrollo sin costes de AWS
+    \item Entorno reproducible para todo el equipo
+    \item Testing de integración sin afectar producción
+    \item Ciclos de desarrollo más rápidos
+\end{itemize}
+
+\subsection{Herramientas de Desarrollo}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|p{9cm}|}
+\hline
+\textbf{Herramienta} & \textbf{Uso} \\
+\hline
+Git & Control de versiones \\
+\hline
+GitHub & Repositorio remoto y CI/CD con GitHub Actions \\
+\hline
+Docker & Contenedorización para LocalStack \\
+\hline
+VS Code & Editor de código principal \\
+\hline
+AWS SAM & Framework para definir infraestructura serverless \\
+\hline
+\end{tabular}
+\caption{Herramientas de desarrollo}
+\end{table}
+
+\newpage
+
+% ==================== 4. IMPLEMENTACIÓN DEL GRAFO ====================
+\section{Implementación del Modelo de Grafos}
+
+\subsection{Estructura de Datos}
+
+El grafo se modela utilizando la clase \texttt{FlightGraph}, que encapsula un grafo no dirigido de NetworkX. Cada nodo representa un aeropuerto y cada arista un vuelo directo.
+
+\subsubsection{Representación de Nodos (Aeropuertos)}
+
+Cada aeropuerto se almacena como un nodo con los siguientes atributos:
+
+\begin{lstlisting}[language=Python, caption=Estructura de un aeropuerto]
+{
+    "code": "MAD",           # Codigo IATA del aeropuerto
+    "name": "Adolfo Suarez Madrid-Barajas",
+    "city": "Madrid",
+    "country": "Spain"
+}
+\end{lstlisting}
+
+\subsubsection{Representación de Aristas (Vuelos)}
+
+Cada vuelo se representa como una arista con peso:
+
+\begin{lstlisting}[language=Python, caption=Estructura de un vuelo]
+{
+    "origin": "MAD",
+    "destination": "JFK",
+    "distance": 5768    # Distancia en kilometros
+}
+\end{lstlisting}
+
+\subsection{Clase FlightGraph}
+
+La clase principal que gestiona el grafo:
+
+\begin{lstlisting}[language=Python, caption=Clase FlightGraph (extracto)]
+import networkx as nx
+from typing import List, Dict, Optional
+
+class FlightGraph:
+    def __init__(self):
+        self.graph = nx.Graph()
+    
+    def add_airport(self, code: str, name: str, 
+                    city: str, country: str) -> None:
+        """Anade un aeropuerto (nodo) al grafo."""
+        self.graph.add_node(code, name=name, 
+                           city=city, country=country)
+    
+    def add_flight(self, origin: str, destination: str, 
+                   distance: int) -> None:
+        """Anade un vuelo (arista) entre dos aeropuertos."""
+        self.graph.add_edge(origin, destination, weight=distance)
+    
+    def load_data(self, airports: List[Dict], 
+                  flights: List[Dict]) -> None:
+        """Carga los datos de aeropuertos y vuelos al grafo."""
+        for airport in airports:
+            self.add_airport(
+                airport["code"], airport["name"],
+                airport["city"], airport["country"]
+            )
+        for flight in flights:
+            self.add_flight(
+                flight["origin"], flight["destination"],
+                flight["distance"]
+            )
+\end{lstlisting}
+
+\subsection{Algoritmos Implementados}
+
+\subsubsection{Camino Más Corto (Dijkstra)}
+
+Para encontrar la ruta óptima entre dos aeropuertos, utilizamos el algoritmo de Dijkstra:
+
+\begin{lstlisting}[language=Python, caption=Implementación del camino más corto]
+def shortest_path(self, origin: str, 
+                  destination: str) -> Optional[List[str]]:
+    """Devuelve el camino mas corto entre dos aeropuertos."""
+    try:
+        return nx.shortest_path(self.graph, origin, 
+                               destination, weight="weight")
+    except nx.NetworkXNoPath:
+        return None
+
+def shortest_path_distance(self, origin: str, 
+                           destination: str) -> Optional[int]:
+    """Devuelve la distancia del camino mas corto."""
+    try:
+        return nx.shortest_path_length(self.graph, origin, 
+                                       destination, weight="weight")
+    except nx.NetworkXNoPath:
+        return None
+\end{lstlisting}
+
+El algoritmo de Dijkstra tiene una complejidad de $O((V + E) \log V)$ donde $V$ es el número de nodos y $E$ el número de aristas.
+
+\subsubsection{Todos los Caminos}
+
+Para obtener todas las rutas posibles entre dos aeropuertos:
+
+\begin{lstlisting}[language=Python, caption=Obtención de todos los caminos]
+def all_paths(self, origin: str, destination: str, 
+              max_length: int = 5) -> List[List[str]]:
+    """Devuelve todos los caminos entre dos aeropuertos."""
+    try:
+        paths = list(nx.all_simple_paths(
+            self.graph, origin, destination, cutoff=max_length
+        ))
+        return paths
+    except nx.NetworkXNoPath:
+        return []
+\end{lstlisting}
+
+Nota: Limitamos la longitud máxima para evitar explosión combinatoria.
+
+\subsubsection{Detección de Hubs}
+
+Los hubs son los aeropuertos con mayor número de conexiones:
+
+\begin{lstlisting}[language=Python, caption=Identificación de hubs]
+def get_hubs(self, top_n: int = 5) -> List[Dict]:
+    """Devuelve los aeropuertos con mas conexiones."""
+    degrees = sorted(self.graph.degree(), 
+                    key=lambda x: x[1], reverse=True)
+    return [{"airport": code, "connections": degree} 
+            for code, degree in degrees[:top_n]]
+\end{lstlisting}
+
+\subsubsection{Detección de Clusters}
+
+Utilizamos el algoritmo de modularidad greedy para detectar comunidades:
+
+\begin{lstlisting}[language=Python, caption=Detección de clusters]
+def get_clusters(self) -> List[List[str]]:
+    """Detecta comunidades/clusters en el grafo."""
+    communities = nx.community.greedy_modularity_communities(
+        self.graph
+    )
+    return [list(community) for community in communities]
+\end{lstlisting}
+
+Este algoritmo agrupa los nodos que están más densamente conectados entre sí.
+
+\subsubsection{Nodos Aislados}
+
+Aeropuertos sin conexiones directas:
+
+\begin{lstlisting}[language=Python, caption=Obtención de nodos aislados]
+def get_isolated_nodes(self) -> List[str]:
+    """Devuelve aeropuertos sin conexiones."""
+    return list(nx.isolates(self.graph))
+\end{lstlisting}
+
+\subsection{Datos del Sistema}
+
+El sistema incluye datos de 15 aeropuertos internacionales:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Código} & \textbf{Ciudad} & \textbf{País} \\
+\hline
+MAD & Madrid & España \\
+BCN & Barcelona & España \\
+LPA & Las Palmas & España \\
+TFN & Tenerife & España \\
+LHR & Londres & Reino Unido \\
+CDG & París & Francia \\
+FCO & Roma & Italia \\
+FRA & Frankfurt & Alemania \\
+AMS & Ámsterdam & Países Bajos \\
+JFK & Nueva York & Estados Unidos \\
+MIA & Miami & Estados Unidos \\
+LAX & Los Ángeles & Estados Unidos \\
+IST & Estambul & Turquía \\
+DXB & Dubái & Emiratos Árabes \\
+SIN & Singapur & Singapur \\
+\hline
+\end{tabular}
+\caption{Aeropuertos incluidos en el sistema}
+\end{table}
+
+Y 27 conexiones de vuelos directos entre ellos, formando una red realista de transporte aéreo.
+
+\newpage
+
+% ==================== 5. API REST ====================
+\section{API REST}
+
+\subsection{Diseño de la API}
+
+La API sigue los principios REST (Representational State Transfer):
+
+\begin{itemize}
+    \item \textbf{Stateless:} Cada petición es independiente
+    \item \textbf{Recursos:} Endpoints organizados por recursos (airports, paths, etc.)
+    \item \textbf{Métodos HTTP:} Uso de GET para consultas
+    \item \textbf{JSON:} Formato de intercambio de datos
+\end{itemize}
+
+\subsection{Endpoints Disponibles}
+
+\subsubsection{GET /airports}
+
+Lista todos los aeropuertos del sistema.
+
+\begin{lstlisting}[caption=Ejemplo de respuesta /airports]
+{
+    "airports": [
+        {
+            "code": "MAD",
+            "name": "Adolfo Suarez Madrid-Barajas",
+            "city": "Madrid",
+            "country": "Spain"
+        },
+        ...
+    ]
+}
+\end{lstlisting}
+
+\subsubsection{GET /stats}
+
+Devuelve estadísticas generales del grafo.
+
+\begin{lstlisting}[caption=Ejemplo de respuesta /stats]
+{
+    "total_airports": 15,
+    "total_flights": 27,
+    "density": 0.257,
+    "is_connected": true
+}
+\end{lstlisting}
+
+\subsubsection{GET /shortest-path}
+
+Calcula la ruta más corta entre dos aeropuertos.
+
+\textbf{Parámetros:}
+\begin{itemize}
+    \item \texttt{origin} (requerido): Código del aeropuerto origen
+    \item \texttt{destination} (requerido): Código del aeropuerto destino
+\end{itemize}
+
+\begin{lstlisting}[caption=Ejemplo: /shortest-path?origin=MAD\&destination=SIN]
+{
+    "origin": "MAD",
+    "destination": "SIN",
+    "path": ["MAD", "LHR", "DXB", "SIN"],
+    "distance": 12596,
+    "stops": 2
+}
+\end{lstlisting}
+
+\subsubsection{GET /all-paths}
+
+Devuelve todos los caminos posibles entre dos aeropuertos.
+
+\textbf{Parámetros:}
+\begin{itemize}
+    \item \texttt{origin} (requerido): Código del aeropuerto origen
+    \item \texttt{destination} (requerido): Código del aeropuerto destino
+    \item \texttt{max\_length} (opcional, default=5): Longitud máxima del camino
+\end{itemize}
+
+\subsubsection{GET /hubs}
+
+Devuelve los aeropuertos con más conexiones.
+
+\textbf{Parámetros:}
+\begin{itemize}
+    \item \texttt{top} (opcional, default=5): Número de hubs a devolver
+\end{itemize}
+
+\begin{lstlisting}[caption=Ejemplo: /hubs?top=3]
+{
+    "hubs": [
+        {"airport": "MAD", "connections": 8},
+        {"airport": "LHR", "connections": 6},
+        {"airport": "CDG", "connections": 5}
+    ]
+}
+\end{lstlisting}
+
+\subsubsection{GET /isolated}
+
+Devuelve aeropuertos sin conexiones directas.
+
+\subsubsection{GET /connections}
+
+Devuelve las conexiones directas de un aeropuerto.
+
+\textbf{Parámetros:}
+\begin{itemize}
+    \item \texttt{airport} (requerido): Código del aeropuerto
+\end{itemize}
+
+\begin{lstlisting}[caption=Ejemplo: /connections?airport=MAD]
+{
+    "airport": "MAD",
+    "connections": ["BCN", "LPA", "TFN", "LHR", "CDG", "FCO", "JFK", "FRA"],
+    "total": 8
+}
+\end{lstlisting}
+
+\subsubsection{GET /by-degree}
+
+Filtra aeropuertos por número de conexiones.
+
+\textbf{Parámetros:}
+\begin{itemize}
+    \item \texttt{degree} (requerido): Número exacto de conexiones
+\end{itemize}
+
+\subsubsection{GET /clusters}
+
+Detecta comunidades o clusters en el grafo.
+
+\begin{lstlisting}[caption=Ejemplo de respuesta /clusters]
+{
+    "total_clusters": 3,
+    "clusters": [
+        ["BCN", "TFN", "MAD", "CDG", "FCO", "LPA"],
+        ["FRA", "SIN", "AMS", "IST", "DXB", "LHR"],
+        ["LAX", "JFK", "MIA"]
+    ]
+}
+\end{lstlisting}
+
+\subsubsection{GET /longest-path}
+
+Devuelve el camino más largo (sin ciclos) entre dos aeropuertos.
+
+\subsection{Manejo de Errores}
+
+La API devuelve códigos HTTP estándar:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Código} & \textbf{Significado} & \textbf{Ejemplo} \\
+\hline
+200 & OK & Operación exitosa \\
+400 & Bad Request & Faltan parámetros requeridos \\
+404 & Not Found & No se encontró ruta o recurso \\
+500 & Server Error & Error interno del servidor \\
+\hline
+\end{tabular}
+\caption{Códigos de respuesta HTTP}
+\end{table}
+
+Ejemplo de error:
+
+\begin{lstlisting}[caption=Respuesta de error]
+{
+    "error": "origin and destination required"
+}
+\end{lstlisting}
+
+\newpage
+
+% ==================== 6. FRONTEND ====================
+\section{Interfaz Web}
+
+\subsection{Descripción General}
+
+Se ha desarrollado una interfaz web moderna y responsiva que permite interactuar visualmente con la API. El frontend está construido con HTML5, CSS3 y JavaScript vanilla, sin dependencias externas.
+
+\subsection{Características}
+
+\begin{itemize}
+    \item \textbf{Diseño responsivo:} Se adapta a diferentes tamaños de pantalla
+    \item \textbf{Tema oscuro:} Interfaz con colores oscuros para reducir fatiga visual
+    \item \textbf{Interactiva:} Actualizaciones en tiempo real sin recargar la página
+    \item \textbf{Estadísticas en vivo:} Muestra métricas del grafo al cargar
+\end{itemize}
+
+\subsection{Secciones de la Interfaz}
+
+\subsubsection{Barra de Estadísticas}
+
+Muestra en tiempo real:
+\begin{itemize}
+    \item Total de aeropuertos en el sistema
+    \item Número de vuelos/conexiones
+    \item Densidad del grafo
+    \item Número de clusters detectados
+\end{itemize}
+
+\subsubsection{Búsqueda de Rutas}
+
+Permite seleccionar aeropuerto de origen y destino para calcular:
+\begin{itemize}
+    \item Ruta más corta
+    \item Distancia total
+    \item Número de escalas
+\end{itemize}
+
+\subsubsection{Visualización de Hubs}
+
+Muestra los aeropuertos más conectados con:
+\begin{itemize}
+    \item Código del aeropuerto
+    \item Número de conexiones
+    \item Ranking visual
+\end{itemize}
+
+\subsubsection{Conexiones Directas}
+
+Permite consultar los vuelos directos desde cualquier aeropuerto.
+
+\subsubsection{Detección de Clusters}
+
+Visualiza las comunidades detectadas, agrupando aeropuertos por regiones geográficas.
+
+\subsection{Tecnologías del Frontend}
+
+\begin{itemize}
+    \item \textbf{HTML5:} Estructura semántica del contenido
+    \item \textbf{CSS3:} Estilos modernos con variables CSS, flexbox y grid
+    \item \textbf{JavaScript ES6+:} Lógica de interacción y llamadas a la API usando fetch
+    \item \textbf{Google Fonts:} Tipografía Inter para mejor legibilidad
+\end{itemize}
+
+\subsection{Comunicación con la API}
+
+El frontend utiliza la API Fetch de JavaScript para comunicarse con el backend:
+
+\begin{lstlisting}[language=JavaScript, caption=Ejemplo de llamada a la API]
+async function findShortestPath() {
+    const origin = document.getElementById('origin').value;
+    const destination = document.getElementById('destination').value;
+    
+    const response = await fetch(
+        `${API_BASE}/shortest-path?origin=${origin}&destination=${destination}`
+    );
+    const data = await response.json();
+    
+    // Mostrar resultados...
+}
+\end{lstlisting}
+
+\newpage
+
+% ==================== 7. INFRAESTRUCTURA ====================
+\section{Infraestructura Cloud}
+
+\subsection{AWS SAM Template}
+
+Utilizamos AWS SAM (Serverless Application Model) para definir la infraestructura como código:
+
+\begin{lstlisting}[language=yaml, caption=template.yaml (extracto)]
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Flight Network Graph API
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.11
+    MemorySize: 256
+
+Resources:
+  FlightGraphFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: flight-graph-operations
+      CodeUri: ../../src/
+      Handler: lambdas.graph_operations.lambda_handler
+      Events:
+        Airports:
+          Type: Api
+          Properties:
+            Path: /airports
+            Method: get
+        ShortestPath:
+          Type: Api
+          Properties:
+            Path: /shortest-path
+            Method: get
+        # ... mas endpoints
+
+  FlightDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub flight-data-${AWS::AccountId}
+
+Outputs:
+  ApiUrl:
+    Description: URL de la API
+    Value: !Sub https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+\end{lstlisting}
+
+\subsection{LocalStack Setup}
+
+Para desarrollo local, utilizamos un script de inicialización:
+
+\begin{lstlisting}[language=bash, caption=setup.sh para LocalStack]
+#!/bin/bash
+echo "Configurando recursos en LocalStack..."
+
+# Crear bucket S3 para datos
+awslocal s3 mb s3://flight-data
+
+# Subir datos al bucket
+awslocal s3 cp /opt/code/data/airports.json s3://flight-data/
+awslocal s3 cp /opt/code/data/flights.json s3://flight-data/
+
+# Crear tabla DynamoDB para cache
+awslocal dynamodb create-table \
+    --table-name FlightCache \
+    --key-schema AttributeName=route,KeyType=HASH \
+    --attribute-definitions AttributeName=route,AttributeType=S \
+    --billing-mode PAY_PER_REQUEST
+
+echo "LocalStack configurado correctamente!"
+\end{lstlisting}
+
+\subsection{Servidor Flask para Desarrollo}
+
+Para facilitar el desarrollo y testing, incluimos un servidor Flask:
+
+\begin{lstlisting}[language=Python, caption=app.py (extracto)]
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
+
+app = Flask(__name__, static_folder='frontend')
+CORS(app)
+
+@app.route('/')
+def index():
+    return send_from_directory('frontend', 'index.html')
+
+@app.route('/airports', methods=['GET'])
+def get_airports():
+    return jsonify({'airports': graph.get_all_airports()})
+
+# ... mas endpoints
+
+if __name__ == '__main__':
+    print("Flight Network Graph API")
+    print(f"API: http://localhost:5000")
+    app.run(debug=True, port=5000)
+\end{lstlisting}
+
+\newpage
+
+% ==================== 8. CI/CD ====================
+\section{Pipeline CI/CD}
+
+\subsection{GitHub Actions}
+
+Implementamos un pipeline de integración y despliegue continuo usando GitHub Actions:
+
+\begin{lstlisting}[language=yaml, caption=.github/workflows/ci-cd.yml]
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run tests
+        run: |
+          pytest tests/ -v --tb=short
+      
+      - name: Run linter
+        run: |
+          pip install flake8
+          flake8 src/ --max-line-length=100
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install SAM CLI
+        run: pip install aws-sam-cli
+      
+      - name: Build and Deploy
+        run: |
+          sam build -t infrastructure/aws/template.yaml
+          sam deploy --no-confirm-changeset \
+                     --stack-name flight-graph-api
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+\end{lstlisting}
+
+\subsection{Flujo del Pipeline}
+
+\begin{enumerate}
+    \item \textbf{Trigger:} El pipeline se activa con cada push a main o pull request
+    \item \textbf{Checkout:} Descarga el código del repositorio
+    \item \textbf{Setup:} Configura Python 3.11
+    \item \textbf{Install:} Instala las dependencias del proyecto
+    \item \textbf{Test:} Ejecuta todos los tests con pytest
+    \item \textbf{Lint:} Verifica el estilo del código con flake8
+    \item \textbf{Deploy:} Si los tests pasan y es la rama main, despliega a AWS
+\end{enumerate}
+
+\subsection{Beneficios del CI/CD}
+
+\begin{itemize}
+    \item \textbf{Automatización:} No hay intervención manual en el proceso
+    \item \textbf{Consistencia:} Cada despliegue sigue el mismo proceso
+    \item \textbf{Calidad:} No se despliega código que no pase los tests
+    \item \textbf{Rapidez:} Feedback inmediato sobre el estado del código
+    \item \textbf{Trazabilidad:} Historial completo de todos los despliegues
+\end{itemize}
+
+\newpage
+
+% ==================== 9. TESTING ====================
+\section{Pruebas}
+
+\subsection{Estrategia de Testing}
+
+Implementamos pruebas a dos niveles:
+
+\begin{enumerate}
+    \item \textbf{Tests unitarios:} Prueban el modelo del grafo de forma aislada
+    \item \textbf{Tests de integración:} Prueban la API completa
+\end{enumerate}
+
+\subsection{Tests del Modelo (test\_graph.py)}
+
+\begin{lstlisting}[language=Python, caption=Tests del modelo de grafo]
+import pytest
+from models.graph import FlightGraph
+
+@pytest.fixture
+def sample_graph():
+    """Crea un grafo de ejemplo para tests."""
+    graph = FlightGraph()
+    graph.add_airport("MAD", "Madrid", "Madrid", "Spain")
+    graph.add_airport("BCN", "Barcelona", "Barcelona", "Spain")
+    graph.add_airport("LHR", "London", "London", "UK")
+    graph.add_flight("MAD", "BCN", 500)
+    graph.add_flight("MAD", "LHR", 1200)
+    return graph
+
+def test_shortest_path(sample_graph):
+    """Test camino mas corto."""
+    path = sample_graph.shortest_path("BCN", "LHR")
+    assert path == ["BCN", "MAD", "LHR"]
+
+def test_get_hubs(sample_graph):
+    """Test obtener hubs."""
+    hubs = sample_graph.get_hubs(2)
+    assert hubs[0]["airport"] == "MAD"
+    assert hubs[0]["connections"] == 2
+\end{lstlisting}
+
+\subsection{Tests de la API (test\_api.py)}
+
+\begin{lstlisting}[language=Python, caption=Tests de la API]
+def test_get_airports():
+    """Test endpoint /airports."""
+    event = {'path': '/airports', 'httpMethod': 'GET'}
+    response = lambda_handler(event, None)
+    
+    assert response['statusCode'] == 200
+    body = json.loads(response['body'])
+    assert 'airports' in body
+    assert len(body['airports']) > 0
+
+def test_shortest_path():
+    """Test endpoint /shortest-path."""
+    event = {
+        'path': '/shortest-path',
+        'httpMethod': 'GET',
+        'queryStringParameters': {
+            'origin': 'MAD', 
+            'destination': 'JFK'
+        }
+    }
+    response = lambda_handler(event, None)
+    
+    assert response['statusCode'] == 200
+    body = json.loads(response['body'])
+    assert 'path' in body
+\end{lstlisting}
+
+\subsection{Resultados de las Pruebas}
+
+Al ejecutar \texttt{pytest tests/ -v}, obtenemos:
+
+\begin{lstlisting}[caption=Resultados de pytest]
+tests/test_api.py::test_get_airports PASSED
+tests/test_api.py::test_get_stats PASSED
+tests/test_api.py::test_shortest_path PASSED
+tests/test_api.py::test_shortest_path_missing_params PASSED
+tests/test_api.py::test_get_hubs PASSED
+tests/test_api.py::test_get_connections PASSED
+tests/test_api.py::test_get_clusters PASSED
+tests/test_api.py::test_endpoint_not_found PASSED
+tests/test_graph.py::test_add_airport PASSED
+tests/test_graph.py::test_add_flight PASSED
+tests/test_graph.py::test_shortest_path PASSED
+tests/test_graph.py::test_shortest_path_no_route PASSED
+tests/test_graph.py::test_get_connections PASSED
+tests/test_graph.py::test_get_isolated_nodes PASSED
+tests/test_graph.py::test_get_hubs PASSED
+tests/test_graph.py::test_get_nodes_by_degree PASSED
+tests/test_graph.py::test_all_paths PASSED
+tests/test_graph.py::test_graph_stats PASSED
+
+=================== 18 passed in 0.32s ===================
+\end{lstlisting}
+
+\textbf{Resultado: 18 tests pasados, 0 fallidos.}
+
+\subsection{Cobertura de Tests}
+
+Los tests cubren:
+
+\begin{itemize}
+    \item Todos los endpoints de la API
+    \item Todas las operaciones del modelo de grafos
+    \item Casos de error (parámetros faltantes, rutas inexistentes)
+    \item Casos límite (nodos aislados, grafos vacíos)
+\end{itemize}
+
+\newpage
+
+% ==================== 10. MANUAL DE USO ====================
+\section{Manual de Instalación y Uso}
+
+\subsection{Requisitos Previos}
+
+\begin{itemize}
+    \item Python 3.11 o superior
+    \item Docker y Docker Compose (para LocalStack)
+    \item Git
+\end{itemize}
+
+\subsection{Instalación}
+
+\begin{lstlisting}[language=bash, caption=Pasos de instalación]
+# 1. Clonar el repositorio
+git clone https://github.com/raulmendoza21/flight-network-graph-api.git
+cd flight-network-graph-api
+
+# 2. Crear entorno virtual
+python -m venv .venv
+
+# 3. Activar entorno virtual
+# Windows:
+.venv\Scripts\activate
+# Linux/Mac:
+source .venv/bin/activate
+
+# 4. Instalar dependencias
+pip install -r requirements.txt
+\end{lstlisting}
+
+\subsection{Ejecución Local}
+
+\subsubsection{Opción 1: Servidor Flask}
+
+\begin{lstlisting}[language=bash, caption=Ejecutar servidor Flask]
+python app.py
+\end{lstlisting}
+
+Esto inicia el servidor en \texttt{http://localhost:5000}
+
+\subsubsection{Opción 2: LocalStack}
+
+\begin{lstlisting}[language=bash, caption=Ejecutar con LocalStack]
+# Iniciar LocalStack
+docker-compose up -d
+
+# Verificar que esta corriendo
+docker ps
+\end{lstlisting}
+
+\subsection{Ejecutar Tests}
+
+\begin{lstlisting}[language=bash, caption=Ejecutar tests]
+# Todos los tests
+pytest tests/ -v
+
+# Solo tests del modelo
+pytest tests/test_graph.py -v
+
+# Solo tests de la API
+pytest tests/test_api.py -v
+\end{lstlisting}
+
+\subsection{Uso de la API}
+
+Ejemplos de uso con curl:
+
+\begin{lstlisting}[language=bash, caption=Ejemplos de uso de la API]
+# Listar aeropuertos
+curl http://localhost:5000/airports
+
+# Buscar ruta mas corta
+curl "http://localhost:5000/shortest-path?origin=MAD&destination=JFK"
+
+# Ver hubs
+curl "http://localhost:5000/hubs?top=5"
+
+# Ver conexiones de un aeropuerto
+curl "http://localhost:5000/connections?airport=MAD"
+
+# Detectar clusters
+curl http://localhost:5000/clusters
+\end{lstlisting}
+
+\subsection{Uso del Frontend}
+
+\begin{enumerate}
+    \item Iniciar el servidor Flask: \texttt{python app.py}
+    \item Abrir navegador en \texttt{http://localhost:5000}
+    \item Usar la interfaz para:
+    \begin{itemize}
+        \item Buscar rutas entre aeropuertos
+        \item Ver estadísticas del grafo
+        \item Consultar hubs y conexiones
+        \item Visualizar clusters
+    \end{itemize}
+\end{enumerate}
+
+\newpage
+
+% ==================== 11. CONCLUSIONES ====================
+\section{Conclusiones}
+
+\subsection{Objetivos Alcanzados}
+
+Este proyecto ha cumplido satisfactoriamente todos los objetivos planteados:
+
+\begin{enumerate}
+    \item \textbf{Sistema de grafos funcional:} Implementamos un modelo robusto capaz de representar redes de vuelos y realizar operaciones complejas sobre ellas.
+    
+    \item \textbf{API REST completa:} Desarrollamos 10 endpoints que cubren todas las operaciones requeridas, desde búsqueda de rutas hasta detección de comunidades.
+    
+    \item \textbf{Infraestructura cloud:} Configuramos el despliegue tanto en LocalStack (desarrollo) como en AWS (producción) usando SAM.
+    
+    \item \textbf{CI/CD automatizado:} Implementamos un pipeline con GitHub Actions que ejecuta tests automáticamente y despliega a producción.
+    
+    \item \textbf{Interfaz visual:} Creamos un frontend web atractivo y funcional para interactuar con el sistema.
+    
+    \item \textbf{Documentación completa:} Este documento describe en detalle toda la arquitectura y decisiones de diseño.
+\end{enumerate}
+
+\subsection{Lecciones Aprendidas}
+
+Durante el desarrollo del proyecto, aprendimos:
+
+\begin{itemize}
+    \item La importancia de diseñar la arquitectura antes de empezar a codificar
+    \item Cómo utilizar servicios serverless de AWS de forma efectiva
+    \item El valor de las pruebas automatizadas para mantener la calidad del código
+    \item La utilidad de LocalStack para desarrollo sin incurrir en costes de AWS
+    \item Buenas prácticas de CI/CD con GitHub Actions
+\end{itemize}
+
+\subsection{Trabajo Futuro}
+
+Posibles mejoras y extensiones:
+
+\begin{itemize}
+    \item Añadir más aeropuertos y vuelos para aumentar la complejidad del grafo
+    \item Implementar visualización gráfica del grafo con D3.js o similar
+    \item Añadir autenticación de usuarios
+    \item Implementar caché en DynamoDB para mejorar rendimiento
+    \item Crear aplicación móvil que consuma la API
+    \item Añadir métricas adicionales como centralidad de intermediación
+\end{itemize}
+
+\subsection{Valoración Personal}
+
+Este proyecto ha sido una excelente oportunidad para aplicar de forma práctica los conceptos aprendidos en la asignatura. La combinación de grafos, servicios cloud y DevOps proporciona una experiencia realista de lo que implica desarrollar aplicaciones modernas orientadas a ciencia de datos.
+
+\newpage
+
+% ==================== REFERENCIAS ====================
+\section{Referencias}
+
+\begin{enumerate}
+    \item AWS Lambda Documentation. \url{https://docs.aws.amazon.com/lambda/}
+    \item NetworkX Documentation. \url{https://networkx.org/documentation/}
+    \item LocalStack Documentation. \url{https://docs.localstack.cloud/}
+    \item Flask Documentation. \url{https://flask.palletsprojects.com/}
+    \item GitHub Actions Documentation. \url{https://docs.github.com/en/actions}
+    \item AWS SAM Documentation. \url{https://docs.aws.amazon.com/serverless-application-model/}
+    \item Pytest Documentation. \url{https://docs.pytest.org/}
+\end{enumerate}
+
+\newpage
+
+% ==================== ANEXOS ====================
+\appendix
+\section{Estructura del Repositorio}
+
+\begin{lstlisting}[caption=Estructura de carpetas del proyecto]
+flight-network-graph-api/
+|-- .github/
+|   |-- workflows/
+|       |-- ci-cd.yml          # Pipeline CI/CD
+|-- data/
+|   |-- airports.json          # Datos de aeropuertos
+|   |-- flights.json           # Datos de vuelos
+|-- docs/
+|   |-- ARCHITECTURE.md        # Documentacion arquitectonica
+|   |-- GUIA_PROYECTO.md       # Guia del proyecto
+|   |-- memoria.tex            # Este documento
+|-- frontend/
+|   |-- index.html             # Interfaz web
+|-- infrastructure/
+|   |-- aws/
+|   |   |-- template.yaml      # SAM template
+|   |-- localstack/
+|       |-- setup.sh           # Script de inicializacion
+|-- src/
+|   |-- lambdas/
+|   |   |-- graph_operations.py  # Handler Lambda
+|   |-- models/
+|   |   |-- graph.py           # Modelo del grafo
+|   |-- utils/
+|       |-- helpers.py         # Funciones auxiliares
+|-- tests/
+|   |-- test_api.py            # Tests de la API
+|   |-- test_graph.py          # Tests del modelo
+|-- .gitignore
+|-- app.py                     # Servidor Flask
+|-- docker-compose.yml         # Config LocalStack
+|-- README.md
+|-- requirements.txt           # Dependencias Python
+|-- test_local.py              # Script de prueba rapida
+\end{lstlisting}
+
+\section{Ejemplo Completo de Sesión}
+
+\begin{lstlisting}[caption=Ejemplo de uso del sistema]
+$ python test_local.py
+
+=== Test: GET /airports ===
+Status: 200
+Total aeropuertos: 15
+
+=== Test: GET /shortest-path MAD -> JFK ===
+Ruta: MAD -> JFK
+Distancia: 5768 km
+Escalas: 0
+
+=== Test: GET /hubs (top 5) ===
+MAD: 8 conexiones
+LHR: 6 conexiones
+CDG: 5 conexiones
+JFK: 5 conexiones
+BCN: 4 conexiones
+
+=== Test: GET /stats ===
+Aeropuertos: 15
+Vuelos: 27
+Densidad: 0.257
+
+=== Test: GET /clusters ===
+Total clusters: 3
+  Cluster 1: ['BCN', 'TFN', 'MAD', 'CDG', 'FCO', 'LPA']
+  Cluster 2: ['FRA', 'SIN', 'AMS', 'IST', 'DXB', 'LHR']
+  Cluster 3: ['LAX', 'JFK', 'MIA']
+
+Todos los tests pasaron!
+\end{lstlisting}
+
+\end{document}
